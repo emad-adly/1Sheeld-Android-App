@@ -1,11 +1,15 @@
 package com.integreight.onesheeld.shields.controller;
 
+import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -23,7 +27,9 @@ import com.integreight.onesheeld.utils.Log;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -142,11 +148,50 @@ public class CameraShield extends ControllerParent<CameraShield> {
             if (isToastable)
                 activity.showToast("Camera is unavailable, maybe it's used by another application !");
         } else {
-            if (selectionAction != null)
-                selectionAction.onSuccess();
-            hasFrontCamera = CameraUtils.checkFrontCamera(activity.getApplicationContext());
-            bindService();
-            UIHandler = new Handler();
+            addRequiredPremission(Manifest.permission.CAMERA);
+            addRequiredPremission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            if(Build.VERSION.SDK_INT >=16)
+            addRequiredPremission(Manifest.permission.READ_EXTERNAL_STORAGE);
+            if (checkForPermissions()) {
+                    if(!activity.canDrawOverApps()){
+                        final AlertDialog.Builder builder = new AlertDialog.Builder(
+                                activity);
+                        builder.setMessage(
+                                "We need you to enable the draw over apps permission in order to show the camera preview correctly.")
+                                .setCancelable(false)
+                                .setPositiveButton("Ok",
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(final DialogInterface dialog,
+                                                                final int id) {
+                                                activity.requestDrawOverApps();
+                                            }
+                                        })
+                                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                    public void onClick(final DialogInterface dialog,
+                                                        final int id) {
+                                        dialog.cancel();
+                                        activity.showToast("Please enable the permission to be able to select this shield");
+                                    }
+                                });
+                        final AlertDialog alert = builder.create();
+                        alert.show();
+                        if (this.selectionAction != null) {
+                            this.selectionAction.onFailure();
+                        }
+                    }
+                    else {
+                        if (selectionAction != null)
+                            selectionAction.onSuccess();
+                        hasFrontCamera = CameraUtils.checkFrontCamera(activity.getApplicationContext());
+                        bindService();
+                        UIHandler = new Handler();
+                    }
+            }else {
+                if (this.selectionAction != null) {
+                    this.selectionAction.onFailure();
+                }
+//                bindService();
+            }
         }
         return super.invalidate(selectionAction, isToastable);
     }
@@ -325,7 +370,11 @@ public class CameraShield extends ControllerParent<CameraShield> {
                 cameraBinder.send(msg);
         } catch (RemoteException e) {
         }
-        getApplication().unbindService(cameraServiceConnector);
+        try {
+            getApplication().unbindService(cameraServiceConnector);
+        }catch (IllegalArgumentException e){
+
+        }
         capturesQueue = new ConcurrentLinkedQueue<>();
         isCameraBound = false;
 

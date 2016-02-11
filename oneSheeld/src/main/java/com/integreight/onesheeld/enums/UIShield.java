@@ -45,6 +45,7 @@ import com.integreight.onesheeld.shields.controller.TerminalShield;
 import com.integreight.onesheeld.shields.controller.TextToSpeechShield;
 import com.integreight.onesheeld.shields.controller.ToggleButtonShield;
 import com.integreight.onesheeld.shields.controller.TwitterShield;
+import com.integreight.onesheeld.shields.controller.VibrationShield;
 import com.integreight.onesheeld.shields.fragments.AccelerometerFragment;
 import com.integreight.onesheeld.shields.fragments.BuzzerFragment;
 import com.integreight.onesheeld.shields.fragments.CameraFragment;
@@ -87,6 +88,7 @@ import com.integreight.onesheeld.shields.fragments.TerminalFragment;
 import com.integreight.onesheeld.shields.fragments.TextToSpeechFragment;
 import com.integreight.onesheeld.shields.fragments.ToggleButtonFragment;
 import com.integreight.onesheeld.shields.fragments.TwitterFragment;
+import com.integreight.onesheeld.shields.fragments.VibrationFragment;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -106,13 +108,13 @@ public enum UIShield {
     PUSHBUTTON_SHIELD((byte) 0x03, "Push Button", 0xffb97547, R.drawable.shields_list_push_button_symbol, false, PushButtonShield.class, PushButtonFragment.class),
     TOGGLEBUTTON_SHIELD((byte) 0x04, "Toggle Button", 0xffc0039d, R.drawable.shields_list_push_button_symbol, false, ToggleButtonShield.class, ToggleButtonFragment.class),
     ACCELEROMETER_SHIELD((byte) 0x0B, "Accelerometer", 0xff266a5d, R.drawable.shields_list_accelerometer_symbol, false, AccelerometerShield.class, AccelerometerFragment.class, 1),
-    FACEBOOK_SHIELD((byte) 0x19, "Facebook", 0xff039dc0, R.drawable.shields_list_facebook_symbol, false, FacebookShield.class, FacebookFragment.class,false),
-    TWITTER_SHIELD((byte) 0x1A, "Twitter", 0xffa14c4c, R.drawable.shields_list_twitter_symbol, false, TwitterShield.class, TwitterFragment.class),
+    FACEBOOK_SHIELD((byte) 0x19, "Facebook", 0xff039dc0, R.drawable.shields_list_facebook_symbol, false, FacebookShield.class, FacebookFragment.class,1),
+    TWITTER_SHIELD((byte) 0x1A, "Twitter", 0xffa14c4c, R.drawable.shields_list_twitter_symbol, false, TwitterShield.class, TwitterFragment.class,1),
     GAMEDPAD_SHIELD((byte) 0x0C, "Game Pad", 0xff658f08, R.drawable.shields_list_gamepad_symbol, false, GamepadShield.class, GamepadFragment.class),
     FOURSQUARE_SHIELD((byte) 0x1B, "Foursquare", 0xff061179, R.drawable.shields_list_foursquare_symbol, false, FoursquareShield.class, FoursquareFragment.class),
-    GPS_SHIELD((byte) 0x1C, "GPS", 0xffa10b07, R.drawable.shields_list_gps_symbol, false, GpsShield.class, GpsFragment.class),
+    GPS_SHIELD((byte) 0x1C, "GPS", 0xffa10b07, R.drawable.shields_list_gps_symbol, false, GpsShield.class, GpsFragment.class, 1),
     SMS_SHIELD((byte) 0x0D, "SMS", 0xffdb7f40, R.drawable.shields_list_sms_symbol, false, SmsShield.class, SmsFragment.class, 1),
-    MUSICPLAYER_SHIELD((byte) 0x1D, "Music Player", 0xffb950e9, R.drawable.shields_list_musicplayer_symbol, false, MusicShield.class, MusicPlayerFragment.class),
+    MUSICPLAYER_SHIELD((byte) 0x1D, "Music Player", 0xffb950e9, R.drawable.shields_list_musicplayer_symbol, false, MusicShield.class, MusicPlayerFragment.class, 1),
     GYROSCOPE_SHIELD((byte) 0x0E, "Gyroscope", 0xff4c84e9, R.drawable.shields_list_gyroscope_symbol, false, GyroscopeShield.class, GyroscopeFragment.class, 1),
     SKYPE_SHIELD((byte) 0x1F, "Skype", 0xff08c473, R.drawable.shields_list_skype_symbol, false, SkypeShield.class, SkypeFragment.class),
     PROXIMITY_SHIELD((byte) 0x13, "Proximity", 0xff543c8d, R.drawable.shields_list_proximity_symbol, false, ProximityShield.class, ProximityFragment.class, 1),
@@ -123,19 +125,20 @@ public enum UIShield {
     TEMPERATURE_SHIELD((byte) 0x12, "Temperature", 0xff999f45, R.drawable.shields_list_temperature_symbol, false, TemperatureShield.class, TemperatureFragment.class, 1),
     CAMERA_SHIELD((byte) 0x15, "Camera", 0xff6d0347, R.drawable.shields_list_camera_symbol, false, CameraShield.class, CameraFragment.class, 1),
     PHONE_SHIELD((byte) 0x20, "Phone", 0xffe9bd03, R.drawable.shields_list_phone_symbol, false, PhoneShield.class, PhoneFragment.class, 1),
-    EMAIL_SHIELD((byte) 0x1E, "Email", 0xff114540, R.drawable.shields_list_email_symbol, false, EmailShield.class, EmailFragment.class),
+    EMAIL_SHIELD((byte) 0x1E, "Email", 0xff114540, R.drawable.shields_list_email_symbol, false, EmailShield.class, EmailFragment.class,1),
     CLOCK_SHIELD((byte) 0x21, "Clock", 0xffc45527, R.drawable.shields_list_clock_symbol, false, ClockShield.class, ClockFragment.class),
     KEYBOARD_SHIELD((byte) 0x22, "Keyboard", 0xffde1f26, R.drawable.shields_list_keyboard_symbol, false, KeyboardShield.class, KeyboardFragment.class),
     TEXT_TO_SPEECH_SHIELD((byte) 0x23, "Text To Speech", 0xffde1f26, R.drawable.shields_list_tts_symbol, false, TextToSpeechShield.class, TextToSpeechFragment.class),
     SPEECH_RECOGNIZER_SHIELD((byte) 0x24, "Voice Recognizer", 0xffde1f26, R.drawable.shields_list_voice_recognition_symbol, false, SpeechRecognitionShield.class, SpeechRecognitionFragment.class, 1),
-    DATA_LOGGER((byte) 0x25, "Data Logger", 0xffde1f26, R.drawable.shields_list_data_logger_symbol, false, DataLoggerShield.class, DataLoggerFragment.class),
+    DATA_LOGGER((byte) 0x25, "Data Logger", 0xffde1f26, R.drawable.shields_list_data_logger_symbol, false, DataLoggerShield.class, DataLoggerFragment.class, 1),
     TERMINAL_SHIELD((byte) 0x26, "Terminal", 0xffde1f26, R.drawable.shields_list_terminal_symbol, false, TerminalShield.class, TerminalFragment.class),
     TASKER_SHIELD((byte) 0x0, "Tasker", 0xff0b4c8d, R.drawable.shields_list_flashlight_symbol, false, TaskerShield.class, EmptyShieldFragment.class, false),
     PATTERN_SHIELD((byte) 0x27, "Pattern", 0xffde1f26, R.drawable.shields_list_pattern_symbol, false, PatternShield.class, PatternFragment.class),
-    INTERNET_SHIELD((byte) 0x29, "Internet", 0xffde1f26, R.drawable.shields_list_internet_symbol, false, InternetShield.class, InternetFragment.class),
+    INTERNET_SHIELD((byte) 0x29, "Internet", 0xffde1f26, R.drawable.shields_list_internet_symbol, false, InternetShield.class, InternetFragment.class,1),
     NFC_SHIELD((byte) 0x16, "NFC", 0xff03d203, R.drawable.shields_list_nfc_symbol, false, NfcShield.class, NfcFragment.class, 1),
-    GLCD_SHIELD((byte) 0x28, "GLCD", 0xff03d203, R.drawable.shields_list_glcd_symbol, false, GlcdShield.class, GlcdFragment.class, 1),
-    COLOR_DETECTION_SHIELD((byte) 0x05, "Color Detector", 0xffde1f26, R.drawable.shields_list_color_detector_symbol, false, ColorDetectionShield.class, ColorDetectionFragment.class, 1);
+    GLCD_SHIELD((byte) 0x28, "GLCD", 0xff03d203, R.drawable.shields_list_glcd_symbol, false, GlcdShield.class, GlcdFragment.class),
+    COLOR_DETECTION_SHIELD((byte) 0x05, "Color Detector", 0xffde1f26, R.drawable.shields_list_color_detector_symbol, false, ColorDetectionShield.class, ColorDetectionFragment.class, 1),
+    VIBRATION_SHIELD((byte) 0x2A,"Vibration",0xffde1f26,R.drawable.shields_list_vibration_symbol,false, VibrationShield.class, VibrationFragment.class,1);
     public static int[] colors = new int[]{0xff03d203, 0xffd4d903,
             0xffe28203, 0xffe93f03, 0xff0362c0, 0xff03c0ae, 0xffc0034c,
             0xff99bd03, 0xff40039f, 0xffb97547, 0xffc0039d, 0xff266a5d,

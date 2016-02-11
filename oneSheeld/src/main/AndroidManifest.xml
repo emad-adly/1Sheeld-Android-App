@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.integreight.onesheeld"
-    android:versionCode="151123"
-    android:versionName="1.5.0">
+    package="com.integreight.onesheeld">
 
 
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
@@ -282,5 +280,6 @@
                 <action android:name="com.parse.push.intent.OPEN" />
             </intent-filter>
         </receiver>
+        <meta-data android:name="com.parse.push.notification_icon" android:resource="@drawable/notification_icon"/>
     </application>
 </manifest>

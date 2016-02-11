@@ -1,5 +1,6 @@
 package com.integreight.onesheeld.shields.controller;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -7,6 +8,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.os.Vibrator;
 import android.support.v4.app.NotificationCompat;
@@ -33,6 +35,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -56,6 +59,7 @@ public class DataLoggerShield extends ControllerParent<DataLoggerShield> {
     public int currentStatus = READ_FOR_LOGGING;
     private DataLoggerListener eventHandler;
 
+
     public boolean isLoggingStarted() {
         return isStarted;
     }
@@ -77,6 +81,22 @@ public class DataLoggerShield extends ControllerParent<DataLoggerShield> {
     public void refresh() {
         // TODO Auto-generated method stub
 
+    }
+
+    @Override
+    public ControllerParent<DataLoggerShield> invalidate(SelectionAction selectionAction, boolean isToastable) {
+        this.selectionAction =selectionAction;
+        addRequiredPremission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if(Build.VERSION.SDK_INT >=16)
+        addRequiredPremission(Manifest.permission.READ_EXTERNAL_STORAGE);
+        if (checkForPermissions()) {
+            if (selectionAction != null)
+                selectionAction.onSuccess();
+        }else {
+            if (selectionAction != null)
+                selectionAction.onFailure();
+        }
+        return super.invalidate(selectionAction, isToastable);
     }
 
     @Override
@@ -240,7 +260,7 @@ public class DataLoggerShield extends ControllerParent<DataLoggerShield> {
         v.vibrate(1000);
         Intent notificationIntent = new Intent(Intent.ACTION_VIEW);
         MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
-        String mimeFileType = mimeTypeMap.getMimeTypeFromExtension(".csv");
+        String mimeFileType = mimeTypeMap.getMimeTypeFromExtension("csv");
         notificationIntent.setDataAndType(Uri.fromFile(new File(filePath == null
                 || filePath.length() == 0 ? "" : filePath)), mimeFileType);
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

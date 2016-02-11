@@ -51,7 +51,7 @@ import io.fabric.sdk.android.Fabric;
  */
 public class OneSheeldApplication extends Application {
     private SharedPreferences appPreferences;
-    public static int ARDUINO_LIBRARY_VERSION = 9;
+    public static int ARDUINO_LIBRARY_VERSION = 10;
     private final String APP_PREF_NAME = "oneSheeldPreference";
     private final String LAST_DEVICE = "lastConnectedDevice";
     private final String MAJOR_VERSION = "majorVersion";
@@ -78,6 +78,8 @@ public class OneSheeldApplication extends Application {
     public static final String FIRMWARE_UPGRADING_URL = "http://1sheeld.parseapp.com/firmware/version.json";
 
     private static boolean isDebuggable = true;
+
+    private static boolean isDemoMode = false;
 
     private Tracker gaTracker;
 
@@ -373,6 +375,14 @@ public class OneSheeldApplication extends Application {
     public void setRunningSheelds(
             Hashtable<String, ControllerParent<?>> runningSheelds) {
         this.runningSheelds = runningSheelds;
+    }
+
+    public boolean getIsDemoMode(){
+        return isDemoMode;
+    }
+
+    public void setIsDemoMode(boolean isDemoMode) {
+        OneSheeldApplication.isDemoMode = isDemoMode;
     }
 
     public ArduinoFirmata getAppFirmata() {

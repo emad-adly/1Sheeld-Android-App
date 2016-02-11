@@ -1,8 +1,11 @@
 package com.integreight.onesheeld.shields.controller;
 
+import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Color;
@@ -21,6 +24,8 @@ import com.integreight.onesheeld.shields.controller.utils.CameraHeadService;
 import com.integreight.onesheeld.shields.controller.utils.CameraUtils;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ColorDetectionShield extends
         ControllerParent<ColorDetectionShield> {
@@ -63,19 +68,56 @@ public class ColorDetectionShield extends
             com.integreight.onesheeld.shields.ControllerParent.SelectionAction selectionAction,
             boolean isToastable) {
         this.selectionAction = selectionAction;
+        addRequiredPremission(Manifest.permission.CAMERA);
         if (!CameraUtils.checkCameraHardware(getApplication().getApplicationContext())) {
             if (selectionAction != null)
                 selectionAction.onFailure();
             if (isToastable)
                 activity.showToast("Camera is unavailable, maybe it's used by another application !");
         } else {
-            if (selectionAction != null)
-                selectionAction.onSuccess();
-            getApplication().bindService(new Intent(getActivity(), CameraHeadService.class), mConnection, Context.BIND_AUTO_CREATE);
-        }
+            if (checkForPermissions()) {
+                if(!activity.canDrawOverApps()){
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(
+                            activity);
+                    builder.setMessage(
+                            "We need you to enable the draw over apps permission in order to show the camera preview correctly.")
+                            .setCancelable(false)
+                            .setPositiveButton("Ok",
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(final DialogInterface dialog,
+                                                            final int id) {
+                                            activity.requestDrawOverApps();
+                                        }
+                                    })
+                            .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                public void onClick(final DialogInterface dialog,
+                                                    final int id) {
+                                    dialog.cancel();
+                                    activity.showToast("Please enable the permission to be able to select this shield");
+                                }
+                            });
+                    final AlertDialog alert = builder.create();
+                    alert.show();
+                    if (this.selectionAction != null) {
+                        this.selectionAction.onFailure();
+                    }
+                }
+                else {
+                    if (selectionAction != null)
+                        selectionAction.onSuccess();
+                    bindService();
+                }
+            }else {
+                if (selectionAction != null)
+                    selectionAction.onFailure();
+            }
+          }
         return super.invalidate(selectionAction, isToastable);
     }
 
+    private void bindService(){
+        getApplication().bindService(new Intent(getActivity(), CameraHeadService.class), mConnection, Context.BIND_AUTO_CREATE);
+    }
 
     public ColorDetectionShield(Activity activity, String tag) {
         super(activity, tag, true);
@@ -98,7 +140,7 @@ public class ColorDetectionShield extends
             } catch (RemoteException e) {
             }
         } else
-            getApplication().bindService(new Intent(getActivity(), CameraHeadService.class), mConnection, Context.BIND_AUTO_CREATE);
+            bindService();
 
     }
 
@@ -115,7 +157,7 @@ public class ColorDetectionShield extends
             } catch (RemoteException e) {
             }
         } else
-            getApplication().bindService(new Intent(getActivity(), CameraHeadService.class), mConnection, Context.BIND_AUTO_CREATE);
+            bindService();
     }
 
     private void notifyColorDetectionType() {
@@ -131,7 +173,7 @@ public class ColorDetectionShield extends
             } catch (RemoteException e) {
             }
         } else
-            getApplication().bindService(new Intent(getActivity(), CameraHeadService.class), mConnection, Context.BIND_AUTO_CREATE);
+            bindService();
 
     }
 
@@ -193,7 +235,7 @@ public class ColorDetectionShield extends
         if (mService != null)
             mService.send(msg);
         else
-            getApplication().bindService(new Intent(getActivity(), CameraHeadService.class), mConnection, Context.BIND_AUTO_CREATE);
+            bindService();
 
     }
 
@@ -207,7 +249,7 @@ public class ColorDetectionShield extends
         if (mService != null)
             mService.send(msg);
         else
-            getApplication().bindService(new Intent(getActivity(), CameraHeadService.class), mConnection, Context.BIND_AUTO_CREATE);
+            bindService();
 
     }
 
@@ -275,7 +317,11 @@ public class ColorDetectionShield extends
                 mService.send(msg);
         } catch (RemoteException e) {
         }
-        getApplication().unbindService(mConnection);
+        try {
+            getApplication().unbindService(mConnection);
+        }catch(IllegalArgumentException e){
+
+        }
     }
 
     boolean fullFrame = true;
@@ -308,7 +354,7 @@ public class ColorDetectionShield extends
                                 lastSentMS = SystemClock.elapsedRealtime();
                             }
                         } else if (msg.what == CameraHeadService.CRASHED) {
-                            getApplication().bindService(new Intent(getActivity(), CameraHeadService.class), mConnection, Context.BIND_AUTO_CREATE);
+                            bindService();
                         } else if (msg.what == CameraHeadService.SET_CAMERA_PREVIEW_TYPE) {
                             isBackPreview = msg.getData().getBoolean("isBack");
                             if (colorEventHandler != null)

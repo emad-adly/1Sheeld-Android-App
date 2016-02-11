@@ -1,8 +1,10 @@
 package com.integreight.onesheeld.shields.controller;
 
+import android.Manifest;
 import android.app.Activity;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Build;
 
 import com.integreight.firmatabluetooth.ShieldFrame;
 import com.integreight.onesheeld.enums.UIShield;
@@ -52,6 +54,18 @@ public class MusicShield extends ControllerParent<MusicShield> {
 
     public void setEventHandler(MusicEventHandler eventHandler) {
         this.eventHandler = eventHandler;
+    }
+
+    @Override
+    public ControllerParent<MusicShield> invalidate(SelectionAction selectionAction, boolean isToastable) {
+        this.selectionAction = selectionAction;
+        if(Build.VERSION.SDK_INT >=16)
+        addRequiredPremission(Manifest.permission.READ_EXTERNAL_STORAGE);
+        if (checkForPermissions())
+            selectionAction.onSuccess();
+        else
+            selectionAction.onFailure();
+        return super.invalidate(selectionAction, isToastable);
     }
 
     private void init() {
